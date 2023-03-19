@@ -3,6 +3,8 @@
 
 using namespace std;
 
+int globalID[4] = {0, 0, 0, 0};
+
 enum BookType
 {
     SCIENTIFIC,
@@ -20,8 +22,12 @@ private:
     string location;
 
 public:
-    Publisher(string name, string location)
+    Publisher(string name = "temp", string location = "temp")
     {
+        this->name = name;
+        this->location = location;
+        globalID[0]++;
+        id = globalID[0];
     }
 };
 
@@ -29,18 +35,37 @@ class Book
 {
 private:
     int id;
-    string name;
-    BookType type;
-    Publisher publisher;
     bool borrowed;
+    string name;
+    Publisher publisher;
+    BookType type;
 
 public:
     Book(string name, Publisher publisher, BookType type)
     {
+        this->name = name;
+        this->publisher = publisher;
+        this->type = type;
+        globalID[1]++;
+        id = globalID[1];
+        borrowed = false;
     }
     void showInfo()
     {
         cout << id << ". " << name << endl;
+    }
+    bool operator==(const Book &secondbook)
+    {
+        if (this->id == secondbook.id)
+        {
+            return true;
+        }
+        else
+            return false;
+    };
+    BookType returnBookType ()
+    {
+        return type;
     }
 };
 
@@ -54,7 +79,8 @@ private:
 public:
     Member(string id, string name)
     {
-        // TODO
+        this->id = id;
+        this->name = name;
     }
 };
 
@@ -69,19 +95,40 @@ private:
 public:
     Library(string name, int position)
     {
-        // TODO
+        this->name = name;
+        this->position = position;
+        globalID[2]++;
+        id = globalID[2];
     }
-    void findBook()
+    Book findBook(Book wantedBook)
     {
+        for (int i = 0; i < books.size(); i++)
+        {
+            if (wantedBook == books[i])
+            {
+                return books[i];
+            }
+        }
     }
-    void returnAvailabeBook()
+    vector<Book> returnAvailabeBook()
     {
+        return books;
     }
-    void addBook()
+    void addBook(Book bookToAdd)
     {
+        books.push_back(bookToAdd);
     }
-    void returnBasedOnType()
+    vector<Book> returnBasedOnType(BookType requestedType)
     {
+        vector<Book> requestedBooks;
+        for (int i = 0; i < books.size(); i++)
+        {
+            if (books[i].returnBookType() == requestedType)
+            {
+                requestedBooks.push_back(books[i]);
+            }
+        }
+        return requestedBooks;
     }
 };
 
@@ -125,7 +172,6 @@ public:
     }
     bool borrow(string memberId, int libraryId, string name)
     {
-        // TODO
     }
     bool returnBook(string memberId, int libraryId, string name)
     {
@@ -145,3 +191,7 @@ public:
         // TODO
     }
 };
+
+int main()
+{
+}
