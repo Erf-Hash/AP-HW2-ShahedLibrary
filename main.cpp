@@ -5,6 +5,13 @@ using namespace std;
 
 int globalID[4] = {0, 0, 0, 0};
 
+float absoluteFunction(float v)
+{
+    if (v < 0)
+        v *= -1;
+    return v;
+}
+
 enum BookType
 {
     SCIENTIFIC,
@@ -50,9 +57,14 @@ public:
         id = globalID[1];
         borrowed = false;
     }
-    void showInfo()
+    string showInfo()
     {
-        cout << id << ". " << name << endl;
+        string tempString;
+        tempString += to_string(id);
+        tempString += ". ";
+        tempString += name;
+        tempString += "\n";
+        return tempString;
     }
     bool operator==(const Book &secondbook)
     {
@@ -63,9 +75,21 @@ public:
         else
             return false;
     };
-    BookType returnBookType ()
+    BookType returnBookType()
     {
         return type;
+    }
+    string returnName()
+    {
+        return name;
+    }
+    void borrowStatus(bool x)
+    {
+        borrowed = x;
+    }
+    int showID()
+    {
+        return id;
     }
 };
 
@@ -74,13 +98,26 @@ class Member
 private:
     string id;
     string name;
-    vector<Book> books; // smaller than 5
+    vector<Book> books;
 
 public:
     Member(string id, string name)
     {
         this->id = id;
         this->name = name;
+    }
+    bool borrowNewBook(Book wantedBook)
+    {
+        if (books.size() < 5)
+        {
+            books.push_back(wantedBook);
+            return true;
+        }
+        return false;
+    }
+    string showMemberID()
+    {
+        return id;
     }
 };
 
@@ -114,7 +151,7 @@ public:
     {
         return books;
     }
-    void addBook(Book bookToAdd)
+    void addNewBook(Book bookToAdd)
     {
         books.push_back(bookToAdd);
     }
@@ -130,52 +167,185 @@ public:
         }
         return requestedBooks;
     }
+    int showLibID()
+    {
+        return id;
+    }
+    string showLibraryName()
+    {
+        return name;
+    }
+    int showLibPosition()
+    {
+        return position;
+    }
+    void libraryBorrowStatus(bool x, int bookID)
+    {
+        for (int i = 0; i < books.size(); i++)
+        {
+            if (books[i].showID() == bookID)
+            {
+                books[i].borrowStatus(true);
+                break;
+            }
+        }
+    }
 };
 
 class LibrariesHandler
 {
 private:
-    // STUFF
+    vector<Library> libraries;
+    vector<Member> members;
+
 public:
     void createLibrary(string name, int position)
     {
-        // TODO
+        Library tempLibrary(name, position);
+        libraries.push_back(tempLibrary);
     }
     void addBook(int libId, string name, Publisher publisher, BookType type)
     {
-        // TODO
+        Book tempBook(name, publisher, type);
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libId == libraries[i].showLibID())
+            {
+                libraries[i].addNewBook(tempBook);
+                break;
+            }
+        }
     }
     void addBook(int libId, Book book)
     {
-        // TODO
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libId == libraries[i].showLibID())
+            {
+                libraries[i].addNewBook(book);
+                break;
+            }
+        }
     }
     void addMember(string name, string id)
     {
-        // TODO
+        Member tempMember(name, id);
+        members.push_back(tempMember);
     }
     vector<Book> getAllBooks(int libId)
     {
-        // TODO
-        // return [] if no library exists
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libId == libraries[i].showLibID())
+            {
+                return libraries[i].returnAvailabeBook();
+            }
+        }
+        return;
     }
     string getAllBooksInfo(int libId)
     {
-        // return a empty string if empty
+        vector<Book> tempBookVector;
+        string tempString = "";
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libId == libraries[i].showLibID())
+            {
+                tempBookVector = libraries[i].returnAvailabeBook();
+                break;
+            }
+        }
+        for (int i = 0; i < tempBookVector.size(); i++)
+        {
+            tempString += tempBookVector[i].showInfo();
+        }
+        return tempString;
     }
     vector<Book> filterByType(int libId, BookType type)
     {
-        // retun [] if libId does not exist
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libId == libraries[i].showLibID())
+            {
+                return libraries[i].returnBasedOnType(type);
+            }
+        }
+        return;
     }
     string filterByTypeAndShowInfo(int libId, BookType type)
     {
-        // return empty string if libId doesen't exist
+        vector<Book> tempBookVector;
+        string tempString = "";
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libId == libraries[i].showLibID())
+            {
+                tempBookVector = libraries[i].returnBasedOnType(type);
+                break;
+            }
+        }
+        for (int i = 0; i < tempBookVector.size(); i++)
+        {
+            tempString += tempBookVector[i].showInfo();
+        }
+        return tempString;
     }
-    bool borrow(string memberId, int libraryId, string name)
+    bool borrow(string memberId, int libId, string name)
     {
+        vector<Book> tempBookVector;
+        int j = -1;
+        int x = -1;
+
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libId == libraries[i].showLibID())
+            {
+                tempBookVector = libraries[i].returnAvailabeBook();
+                x = i;
+                break;
+            }
+        }
+        if (tempBookVector.size() == 0)
+        {
+            return;
+        }
+        for (int i = 0; i < tempBookVector.size(); i++)
+        {
+            if (tempBookVector[i].returnName() == name)
+            {
+                j = i;
+                break;
+            }
+        }
+        for (int i = 0; i < members.size(); i++)
+        {
+            if (memberId == members[i].showMemberID() && j != -1)
+            {
+                libraries[x].libraryBorrowStatus(true, tempBookVector[x].showID());
+                return members[i].borrowNewBook(tempBookVector[j]);
+                break;
+            }
+        }
+        return false;
     }
     bool returnBook(string memberId, int libraryId, string name)
     {
-        // TODO
+        int x = -1;
+        for (int i = 0; i < libraries.size(); i++)
+        {
+            if (libraries[i].showLibID() == libraryId)
+            {
+                x = i;
+                break;
+            }
+        }
+        for (int i = 0; i < members.size(); i++)
+        {
+            if (memberId == members[i].showMemberID())
+            {
+            }
+        }
+        for ()
     }
     int size()
     {
@@ -188,10 +358,42 @@ public:
     }
     string findLibrariesHaveBook(string name, int position)
     {
-        // TODO
+        vector<Book> tempBookVector;
+        vector<Library> tempLibraries;
+        Library x("", -1);
+        string y = "";
+        for (int j = 0; j < libraries.size(); j++)
+        {
+            tempBookVector = libraries[j].returnAvailabeBook();
+            for (int i = 0; i < tempBookVector.size(); i++)
+            {
+                if (tempBookVector[i].returnName() == name)
+                {
+                    tempLibraries.push_back(libraries[j]);
+                    break;
+                }
+            }
+        }
+        for (int i = 0; i < tempLibraries.size() - 1; i++)
+        {
+            for (int j = 0; j < tempLibraries.size() - i - 1; j++)
+            {
+                if (absoluteFunction(tempLibraries[j].showLibPosition() - position) > absoluteFunction(tempLibraries[j + 1].showLibPosition() - position))
+                {
+                    x = tempLibraries[j + 1];
+                    tempLibraries[j] = tempLibraries[j + 1];
+                    tempLibraries[j + 1] = x;
+                }
+            }
+        }
+        for (int i = 0; i < tempLibraries.size(); i++)
+        {
+            y += to_string(i + 1);
+            y += ". ";
+            y += tempLibraries[i].showLibraryName();
+            y += " ";
+            y += to_string(absoluteFunction(tempLibraries[i].showLibPosition() - position));
+            y += "\n";
+        }
     }
 };
-
-int main()
-{
-}
