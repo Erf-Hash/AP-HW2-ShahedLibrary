@@ -241,7 +241,6 @@ public:
                 return libraries[i].returnAvailabeBook();
             }
         }
-        return;
     }
     string getAllBooksInfo(int libId)
     {
@@ -270,7 +269,6 @@ public:
                 return libraries[i].returnBasedOnType(type);
             }
         }
-        return;
     }
     string filterByTypeAndShowInfo(int libId, BookType type)
     {
@@ -291,7 +289,7 @@ public:
         return tempString;
     }
     bool borrow(string memberId, int libId, string name)
-    {
+    {//needs work
         vector<Book> tempBookVector;
         int j = -1;
         int x = -1;
@@ -307,7 +305,7 @@ public:
         }
         if (tempBookVector.size() == 0)
         {
-            return;
+            return false;
         }
         for (int i = 0; i < tempBookVector.size(); i++)
         {
@@ -328,14 +326,14 @@ public:
         }
         return false;
     }
-    bool returnBook(string memberId, int libraryId, string name)
-    {
-        int x = -1;
+    void returnBook(string memberId, int libraryId, string name)
+    {//needs work
+        int libraryNumber = -1;
         for (int i = 0; i < libraries.size(); i++)
         {
             if (libraries[i].showLibID() == libraryId)
             {
-                x = i;
+                libraryNumber = i;
                 break;
             }
         }
@@ -343,17 +341,49 @@ public:
         {
             if (memberId == members[i].showMemberID())
             {
+                break;
             }
         }
-        for ()
+        vector<Book> y = libraries[libraryNumber].returnAvailabeBook();
+        for (int i = 0; i < y.size(); i++)
+        {
+            if (y[i].returnName() == name)
+            {
+                libraries[libraryNumber].libraryBorrowStatus(false,i);
+                break;
+            }
+        }
     }
     int size()
     {
-        // TODO
+        return libraries.size();
     }
     Library findNearestLibraryByPosition(string name, int position)
     {
-        // return -1 if this book doesen't exist
+        vector<Library> tempLibraries;
+        vector<Book> tempBookVector;
+        Library closestLibrary("", -1);
+        for (int j = 0; j < libraries.size(); j++)
+        {
+            tempBookVector = libraries[j].returnAvailabeBook();
+            for (int i = 0; i < tempBookVector.size(); i++)
+            {
+                if (tempBookVector[i].returnName() == name)
+                {
+                    tempLibraries.push_back(libraries[j]);
+                    break;
+                }
+            }
+        }
+        closestLibrary = tempLibraries[0];
+        for (int i = 0; i < tempLibraries.size(); i++)
+        {
+            if (absoluteFunction(tempLibraries[i].showLibPosition() - position) < absoluteFunction(closestLibrary.showLibPosition() - position))
+            {
+                closestLibrary = tempLibraries[i];
+            }
+        }
+        return closestLibrary;
         // if the distance from two libraries was the same return the library with the shorter name
     }
     string findLibrariesHaveBook(string name, int position)
