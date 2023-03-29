@@ -115,6 +115,16 @@ public:
         }
         return false;
     }
+    void returnBook(string returningBook)
+    {
+        for (int i = 0; i < books.size(); i++)
+        {
+            if (returningBook == books[i].returnName())
+            {
+                books.erase(books.begin()+i);
+            }
+        }
+    }
     string showMemberID()
     {
         return id;
@@ -185,7 +195,7 @@ public:
         {
             if (books[i].showID() == bookID)
             {
-                books[i].borrowStatus(true);
+                books[i].borrowStatus(x);
                 break;
             }
         }
@@ -289,7 +299,7 @@ public:
         return tempString;
     }
     bool borrow(string memberId, int libId, string name)
-    {//needs work
+    {
         vector<Book> tempBookVector;
         int j = -1;
         int x = -1;
@@ -327,7 +337,7 @@ public:
         return false;
     }
     void returnBook(string memberId, int libraryId, string name)
-    {//needs work
+    {
         int libraryNumber = -1;
         for (int i = 0; i < libraries.size(); i++)
         {
@@ -341,6 +351,7 @@ public:
         {
             if (memberId == members[i].showMemberID())
             {
+                members[i].returnBook(name);
                 break;
             }
         }
@@ -349,7 +360,7 @@ public:
         {
             if (y[i].returnName() == name)
             {
-                libraries[libraryNumber].libraryBorrowStatus(false,i);
+                libraries[libraryNumber].libraryBorrowStatus(false, i);
                 break;
             }
         }
