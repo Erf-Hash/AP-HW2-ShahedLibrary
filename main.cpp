@@ -3,8 +3,6 @@
 
 using namespace std;
 
-int globalID[4] = {0, 0, 0, 0};
-
 float absoluteFunction(float v)
 {
     if (v < 0)
@@ -27,14 +25,15 @@ private:
     int id;
     string name;
     string location;
+    static int ID;
 
 public:
     Publisher(string name = "temp", string location = "temp")
     {
         this->name = name;
         this->location = location;
-        globalID[0]++;
-        id = globalID[0];
+        ID++;
+        id = ID;
     }
 };
 
@@ -46,6 +45,7 @@ private:
     string name;
     Publisher publisher;
     BookType type;
+    static int ID;
 
 public:
     Book(string name, Publisher publisher, BookType type)
@@ -53,8 +53,8 @@ public:
         this->name = name;
         this->publisher = publisher;
         this->type = type;
-        globalID[1]++;
-        id = globalID[1];
+        ID++;
+        id = ID;
         borrowed = false;
     }
     string showInfo()
@@ -138,14 +138,15 @@ private:
     string name;
     vector<Book> books;
     int position;
+    static int ID;
 
 public:
     Library(string name, int position)
     {
         this->name = name;
         this->position = position;
-        globalID[2]++;
-        id = globalID[2];
+        ID++;
+        id = ID;
     }
     Book findBook(Book wantedBook)
     {
@@ -381,7 +382,7 @@ public:
             {
                 if (tempBookVector[i].returnName() == name)
                 {
-                    tempLibraries.push_back(libraries[j]);
+                    tempLibraries.push_back(libraries[j]);        //finds the book that we gave the name for from our libraries
                     break;
                 }
             }
@@ -391,11 +392,10 @@ public:
         {
             if (absoluteFunction(tempLibraries[i].showLibPosition() - position) < absoluteFunction(closestLibrary.showLibPosition() - position))
             {
-                closestLibrary = tempLibraries[i];
+                closestLibrary = tempLibraries[i];          //finds the closest library
             }
         }
         return closestLibrary;
-        // if the distance from two libraries was the same return the library with the shorter name
     }
     string findLibrariesHaveBook(string name, int position)
     {
@@ -410,7 +410,7 @@ public:
             {
                 if (tempBookVector[i].returnName() == name)
                 {
-                    tempLibraries.push_back(libraries[j]);
+                    tempLibraries.push_back(libraries[j]);        //finds the book that we gave the name for from our libraries
                     break;
                 }
             }
@@ -422,7 +422,7 @@ public:
                 if (absoluteFunction(tempLibraries[j].showLibPosition() - position) > absoluteFunction(tempLibraries[j + 1].showLibPosition() - position))
                 {
                     x = tempLibraries[j + 1];
-                    tempLibraries[j] = tempLibraries[j + 1];
+                    tempLibraries[j] = tempLibraries[j + 1];          //sorts our libraries based on distance using bubble sort algorithm
                     tempLibraries[j + 1] = x;
                 }
             }
@@ -432,9 +432,10 @@ public:
             y += to_string(i + 1);
             y += ". ";
             y += tempLibraries[i].showLibraryName();
-            y += " ";
+            y += " ";                                                                               //converts our sorted array to string
             y += to_string(absoluteFunction(tempLibraries[i].showLibPosition() - position));
             y += "\n";
         }
+        return y;
     }
 };
